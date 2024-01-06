@@ -9,11 +9,11 @@ func DisAssembleChunk(c *common.Chunk, name string) {
 	fmt.Printf("== %s ==\n", name)
 
 	for offset := 0; offset < len(c.OpCodes); {
-		offset = disassembleInstruction(c, offset)
+		offset = DisassembleInstruction(c, offset)
 	}
 }
 
-func disassembleInstruction(c *common.Chunk, offset int) int {
+func DisassembleInstruction(c *common.Chunk, offset int) int {
 	fmt.Printf("%04d ", offset)
 
 	if offset > 0 && c.Lines[offset] == c.Lines[offset-1] {
@@ -24,10 +24,20 @@ func disassembleInstruction(c *common.Chunk, offset int) int {
 
 	instruction := c.OpCodes[offset]
 	switch instruction {
-	case common.OpConstantLong:
-		return constantLongInstruction("CONSTANT_LONG", c, offset)
 	case common.OpConstant:
 		return constantInstruction("CONSTANT", c, offset)
+	case common.OpConstantLong:
+		return constantLongInstruction("CONSTANT_LONG", c, offset)
+	case common.OpAdd:
+		return simpleInstruction("ADD", offset)
+	case common.OpSubtract:
+		return simpleInstruction("SUBTRACT", offset)
+	case common.OpMultiply:
+		return simpleInstruction("MULTIPLY", offset)
+	case common.OpDivide:
+		return simpleInstruction("DIVIDE", offset)
+	case common.OpNegate:
+		return simpleInstruction("NEGATE", offset)
 	case common.OpReturn:
 		return simpleInstruction("RETURN", offset)
 	default:
