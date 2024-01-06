@@ -150,6 +150,10 @@ func (s *Scanner) errorToken(msg string) *token.Token {
 }
 
 func (s *Scanner) literal() *token.Token {
+	// Todo: add string interpolation
+	//    e.g.  print "${drink} will e ready in ${steep + cool} minutes."
+	//    e.g.  print "Nested ${"interpolation?! Are you ${"mad?!"}"}"
+
 	for s.Current < len(s.Source) && s.Source[s.Current] != '"' {
 		if s.Source[s.Current] == '\n' {
 			s.Line++
