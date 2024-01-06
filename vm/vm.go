@@ -31,7 +31,9 @@ func New(c *common.Chunk, debugTraceExecution bool) *VM {
 	}
 }
 
-func (vm *VM) Interpret() InterpretResult {
+func (vm *VM) Interpret(source string) InterpretResult {
+	//vm.compile(source)
+	//return InterpretOK
 	return vm.run()
 }
 
@@ -47,8 +49,7 @@ func (vm *VM) run() InterpretResult {
 			disassembly.DisassembleInstruction(vm.Chunk, vm.IP)
 		}
 
-		instruction := vm.readByte()
-		switch instruction {
+		switch instruction := vm.readByte(); instruction {
 		case common.OpConstant:
 			constant := vm.Chunk.Constants[vm.readByte()]
 			vm.push(constant)
