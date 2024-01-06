@@ -1,3 +1,3 @@
-package common
+package value
 
 type Value float64
