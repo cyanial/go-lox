@@ -44,11 +44,11 @@ func (c *Chunk) AddConstant(value value.Value, line int) {
 }
 
 func (c *Chunk) addLine(line int) {
-	// Todo: refactor lines with run-length code
+	// Todo: refactor lines with run-length encoding
 	c.lines = append(c.lines, line)
 }
 
 func (c *Chunk) GetLine(i int) int {
-	// Todo: refactor lines with run-length code
+	// Todo: refactor lines with run-length encoding
 	return c.lines[i]
 }
