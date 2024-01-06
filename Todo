@@ -1,5 +1,3 @@
 1. add string interpolation
     e.g.  print "${drink} will e ready in ${steep + cool} minutes."
     e.g.  print "Nested ${"interpolation?! Are you ${"mad?!"}"}"
-
-2. fix constant long
