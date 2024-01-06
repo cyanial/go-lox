@@ -1,15 +1,38 @@
 package compiler
 
-//
-//import (
-//	"fmt"
-//	"github.com/cyanial/go-interpreters/common"
-//	"github.com/cyanial/go-interpreters/disassembly"
-//	"math"
-//	"os"
-//	"strconv"
-//)
-//
+import (
+	"github.com/cyanial/go-lox/chunk"
+	"github.com/cyanial/go-lox/scanner"
+)
+
+type Compiler struct {
+	Sc *scanner.Scanner
+}
+
+func New() *Compiler {
+	return &Compiler{}
+}
+
+func (c *Compiler) Compile(source string) *chunk.Chunk {
+	c.Sc = scanner.New(source)
+
+	//int line = -1;
+	//for (;;) {
+	//	Token token = scanToken();
+	//	if (token.line != line) {
+	//		printf("%4d ", token.line);
+	//		line = token.line;
+	//	} else {
+	//		printf("   | ");
+	//	}
+	//	printf("%2d '%.*s'\n", token.type, token.length, token.start);
+	//
+	//	if (token.type == TOKEN_EOF) break;
+	//}
+
+	return chunk.New()
+}
+
 //type Compiler struct {
 //	Chunk   *common.Chunk
 //	Parser  *Parser
