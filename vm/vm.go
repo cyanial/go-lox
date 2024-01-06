@@ -3,6 +3,7 @@ package vm
 import (
 	"fmt"
 	"github.com/cyanial/go-interpreters/common"
+	"github.com/cyanial/go-interpreters/compiler"
 	"github.com/cyanial/go-interpreters/disassembly"
 )
 
@@ -19,21 +20,29 @@ type VM struct {
 	IP    int
 	Stack []common.Value
 
+	DebugPrintCode      bool
 	DebugTraceExecution bool
 }
 
-func New(c *common.Chunk, debugTraceExecution bool) *VM {
+func New(c *common.Chunk, debugPrintCode, debugTraceExecution bool) *VM {
 	return &VM{
-		Chunk:               c,
-		IP:                  0,
-		Stack:               make([]common.Value, 0, 256),
+		Chunk: c,
+		IP:    0,
+		Stack: make([]common.Value, 0, 256),
+
+		DebugPrintCode:      debugPrintCode,
 		DebugTraceExecution: debugTraceExecution,
 	}
 }
 
 func (vm *VM) Interpret(source string) InterpretResult {
-	//vm.compile(source)
-	//return InterpretOK
+	c := compiler.NewCompiler(source, vm.DebugPrintCode)
+	if !c.Compile() {
+		return InterpretCompileError
+	}
+
+	vm.Chunk = c.Chunk
+
 	return vm.run()
 }
 

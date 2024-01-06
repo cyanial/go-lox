@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"github.com/cyanial/go-interpreters/compiler"
+	"github.com/cyanial/go-interpreters/vm"
 )
 
 func main() {
@@ -15,15 +14,11 @@ var age = 12;
 func echo(var msg) {
 	return msg;
 };
+
+print 1.2;
 `
-
-	tokens := make([]*compiler.Token, 0)
-
-	sc := compiler.NewScanner(source)
-	for t := sc.ScanToken(); t.Type != compiler.TokenEOF; t = sc.ScanToken() {
-		tokens = append(tokens, t)
-		fmt.Printf("%#v\n", *t)
-	}
+	v := vm.New(nil, true, true)
+	v.Interpret(source)
 
 	//c := common.NewChunk()
 	//
