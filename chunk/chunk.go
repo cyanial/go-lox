@@ -8,7 +8,7 @@ import (
 
 type Chunk struct {
 	Codes     []op.Code
-	Constants []value.Value
+	Constants []*value.Value
 
 	lines []int
 }
@@ -16,7 +16,7 @@ type Chunk struct {
 func New() *Chunk {
 	return &Chunk{
 		Codes:     make([]op.Code, 0),
-		Constants: make([]value.Value, 0),
+		Constants: make([]*value.Value, 0),
 		lines:     make([]int, 0),
 	}
 }
@@ -27,7 +27,7 @@ func (c *Chunk) AddOp(op op.Code, line int) {
 	c.addLine(line)
 }
 
-func (c *Chunk) AddConstant(value value.Value, line int) {
+func (c *Chunk) AddConstant(value *value.Value, line int) {
 	c.Constants = append(c.Constants, value)
 	idx := len(c.Constants) - 1
 	if idx <= math.MaxUint8 {

@@ -250,7 +250,9 @@ func (s *Scanner) identifierType() token.Type {
 }
 
 func (s *Scanner) checkKeyword(start, length int, rest string, typ token.Type) token.Type {
-	if s.Start+start+length-1 < len(s.Source) && s.Source[s.Start+start:s.Start+start+length-1] == rest {
+	got := s.Source[s.Start+start : s.Start+start+length]
+	_ = got
+	if s.Start+start+length <= len(s.Source) && s.Source[s.Start+start:s.Start+start+length] == rest {
 		return typ
 	}
 

@@ -28,6 +28,12 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return constantInstruction("CONSTANT", c, offset)
 	case op.ConstantLong:
 		return constantLongInstruction("CONSTANT_LONG", c, offset)
+	case op.Nil:
+		return simpleInstruction("NIL", offset)
+	case op.True:
+		return simpleInstruction("TRUE", offset)
+	case op.False:
+		return simpleInstruction("FALSE", offset)
 	case op.Add:
 		return simpleInstruction("ADD", offset)
 	case op.Subtract:
@@ -48,9 +54,9 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 }
 
 func constantInstruction(name string, c *chunk.Chunk, offset int) int {
-	constant := int(c.Codes[offset+1])
-	fmt.Printf("%-16s %4d '", name, constant)
-	fmt.Printf("%g", c.Constants[constant])
+	idx := int(c.Codes[offset+1])
+	fmt.Printf("%-16s %4d '", name, idx)
+	fmt.Printf("%s", c.Constants[idx].String())
 	fmt.Println("'")
 
 	return offset + 2
@@ -61,7 +67,7 @@ func constantLongInstruction(name string, c *chunk.Chunk, offset int) int {
 		int(c.Codes[offset+2])<<8 +
 		int(c.Codes[offset+3])<<16
 	fmt.Printf("%-16s %4d '", name, idx)
-	fmt.Printf("%g", c.Constants[idx])
+	fmt.Printf("%s", c.Constants[idx].String())
 	fmt.Println("'")
 
 	return offset + 4

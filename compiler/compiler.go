@@ -30,7 +30,7 @@ func New() *Compiler {
 func (c *Compiler) Compile(source string) (*chunk.Chunk, bool) {
 	c.Sc = scanner.New(source)
 	c.Pa = parser.New()
-	c.Ru = precedence.NewRules(c.unary, c.binary, c.grouping, c.number)
+	c.Ru = precedence.NewRules(c.unary, c.binary, c.grouping, c.number, c.literal)
 	c.Ck = chunk.New()
 
 	c.advance()
@@ -95,9 +95,22 @@ func (c *Compiler) grouping() {
 	c.consume(token.RightParen, "expect ')' after expression")
 }
 
+func (c *Compiler) literal() {
+	switch c.Pa.Previous.Type {
+	case token.False:
+		c.emitByte(op.False)
+	case token.Nil:
+		c.emitByte(op.Nil)
+	case token.True:
+		c.emitByte(op.True)
+	default:
+		return
+	}
+}
+
 func (c *Compiler) number() {
 	valueFloat64, _ := strconv.ParseFloat(c.Pa.Previous.Value, 64)
-	c.emitConstant(value.Value(valueFloat64))
+	c.emitConstant(value.NewNumber(valueFloat64))
 }
 
 func (c *Compiler) unary() {
@@ -135,7 +148,7 @@ func (c *Compiler) binary() {
 
 }
 
-func (c *Compiler) emitConstant(v value.Value) {
+func (c *Compiler) emitConstant(v *value.Value) {
 	c.Ck.AddConstant(v, c.Pa.Previous.Line)
 }
 

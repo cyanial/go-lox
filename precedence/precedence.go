@@ -30,7 +30,7 @@ type Rules struct {
 	r map[token.Type]*ParserRule
 }
 
-func NewRules(unary, binary, grouping, number ParseFn) *Rules {
+func NewRules(unary, binary, grouping, number, literal ParseFn) *Rules {
 	return &Rules{
 		r: map[token.Type]*ParserRule{
 			token.LeftParen:    {grouping, nil, None},
@@ -58,17 +58,17 @@ func NewRules(unary, binary, grouping, number ParseFn) *Rules {
 			token.And:          {nil, nil, None},
 			token.Class:        {nil, nil, None},
 			token.Else:         {nil, nil, None},
-			token.False:        {nil, nil, None},
+			token.False:        {literal, nil, None},
 			token.For:          {nil, nil, None},
 			token.Func:         {nil, nil, None},
 			token.If:           {nil, nil, None},
-			token.Nil:          {nil, nil, None},
+			token.Nil:          {literal, nil, None},
 			token.Or:           {nil, nil, None},
 			token.Print:        {nil, nil, None},
 			token.Return:       {nil, nil, None},
 			token.Super:        {nil, nil, None},
 			token.This:         {nil, nil, None},
-			token.True:         {nil, nil, None},
+			token.True:         {literal, nil, None},
 			token.Var:          {nil, nil, None},
 			token.While:        {nil, nil, None},
 			token.Error:        {nil, nil, None},

@@ -41,3 +41,28 @@ func TestCompilerExpression(t *testing.T) {
 		_, _ = c.Compile(tt.source)
 	}
 }
+
+func TestCompilerBoolNil(t *testing.T) {
+	c := New()
+
+	tests := []struct {
+		source string
+	}{
+		{
+			source: "true",
+		},
+		{
+			source: "false",
+		},
+		{
+			source: "nil",
+		},
+	}
+
+	env.DebugPrintCode = true
+	env.DebugTraceExecution = true
+
+	for _, tt := range tests {
+		_, _ = c.Compile(tt.source)
+	}
+}

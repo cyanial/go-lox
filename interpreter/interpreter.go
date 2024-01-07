@@ -7,6 +7,7 @@ import (
 	"github.com/cyanial/go-lox/env"
 	"github.com/cyanial/go-lox/op"
 	"github.com/cyanial/go-lox/value"
+	"os"
 )
 
 const (
@@ -20,14 +21,14 @@ type Result int
 type Interpreter struct {
 	Chunk *chunk.Chunk
 	IP    int
-	Stack []value.Value
+	Stack []*value.Value
 }
 
 func New(c *chunk.Chunk) *Interpreter {
 	return &Interpreter{
 		Chunk: c,
 		IP:    0,
-		Stack: make([]value.Value, 0),
+		Stack: make([]*value.Value, 0),
 	}
 }
 
@@ -35,8 +36,8 @@ func (it *Interpreter) Run() Result {
 	for {
 		if env.DebugTraceExecution {
 			fmt.Printf("      STACK: ")
-			for _, slot := range it.Stack {
-				fmt.Printf("[%v] ", slot)
+			for _, v := range it.Stack {
+				fmt.Printf("[%s] ", v.String())
 			}
 			fmt.Println()
 			disassembly.DisassembleInstruction(it.Chunk, it.IP)
@@ -51,6 +52,12 @@ func (it *Interpreter) Run() Result {
 			idx += int(it.readByte()) << 8
 			idx += int(it.readByte()) << 16
 			it.push(it.Chunk.Constants[idx])
+		case op.Nil:
+			it.push(value.NewNil())
+		case op.True:
+			it.push(value.NewBool(true))
+		case op.False:
+			it.push(value.NewBool(false))
 		case op.Add:
 			fallthrough
 		case op.Subtract:
@@ -58,9 +65,18 @@ func (it *Interpreter) Run() Result {
 		case op.Multiply:
 			fallthrough
 		case op.Divide:
+			if it.Stack[len(it.Stack)-1].Type != value.Number &&
+				it.Stack[len(it.Stack)-2].Type != value.Number {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
 			it.binaryOp(instruction)
 		case op.Negate:
-			it.push(-it.pop())
+			if it.Stack[len(it.Stack)-1].Type != value.Number {
+				it.runtimeError("operand must be a number")
+				return RuntimeError
+			}
+			it.push(value.NewNumber(-it.pop().AsNumber()))
 		case op.Return:
 			fmt.Println(it.pop())
 			return OK
@@ -70,11 +86,11 @@ func (it *Interpreter) Run() Result {
 	}
 }
 
-func (it *Interpreter) push(value value.Value) {
+func (it *Interpreter) push(value *value.Value) {
 	it.Stack = append(it.Stack, value)
 }
 
-func (it *Interpreter) pop() value.Value {
+func (it *Interpreter) pop() *value.Value {
 	top := it.Stack[len(it.Stack)-1]
 	it.Stack = it.Stack[:len(it.Stack)-1]
 	return top
@@ -93,14 +109,25 @@ func (it *Interpreter) binaryOp(o op.Code) {
 	// it.push(a o b)
 	switch o {
 	case op.Add:
-		it.push(a + b)
+		it.push(value.NewNumber(a.AsNumber() + b.AsNumber()))
 	case op.Subtract:
-		it.push(a - b)
+		it.push(value.NewNumber(a.AsNumber() - b.AsNumber()))
 	case op.Multiply:
-		it.push(a * b)
+		it.push(value.NewNumber(a.AsNumber() * b.AsNumber()))
 	case op.Divide:
-		it.push(a / b)
+		it.push(value.NewNumber(a.AsNumber() / b.AsNumber()))
 	default:
 		panic("unhandled default case ")
 	}
+}
+
+func (it *Interpreter) runtimeError(msg string) {
+	instruction := it.IP - 1
+	line := it.Chunk.GetLine(instruction)
+	_, _ = fmt.Fprintf(os.Stderr, "[line %d] '%s' in script\n", line, msg)
+	it.resetStack()
+}
+
+func (it *Interpreter) resetStack() {
+	it.Stack = make([]*value.Value, 0)
 }
