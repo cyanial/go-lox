@@ -62,3 +62,25 @@ func TestDisassembleLogicalNotAndFalseValue(t *testing.T) {
 
 	DisassembleChunk(ck, "TestDisassembleLogicalNotAndFalseValue")
 }
+
+func TestDisassembleComparison(t *testing.T) {
+	ck := chunk.New()
+	line := 1
+
+	ck.AddConstant(value.NewNumber(12), line)
+	ck.AddConstant(value.NewNumber(9.2), line)
+	ck.AddOp(op.Greater, line)
+
+	ck.AddConstant(value.NewNumber(5.3), line)
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddOp(op.Less, line)
+
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddOp(op.Equal, line)
+
+	ck.AddOp(op.Return, line)
+
+	DisassembleChunk(ck, "TestDisassembleComparison")
+
+}

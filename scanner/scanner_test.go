@@ -111,3 +111,19 @@ func TestScannerLogicalNotAndFalseValue(t *testing.T) {
 		fmt.Println(tok.String())
 	}
 }
+
+func TestScannerComparison(t *testing.T) {
+	source := `
+12.2 > 1.2;
+2.2 >= 5.2;
+c < f;
+aa <= xc;
+my == you;
+he != she;
+`
+
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Println(tok.String())
+	}
+}

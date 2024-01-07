@@ -97,3 +97,22 @@ func TestCompilerLogicalNotAndFalseValue(t *testing.T) {
 		_, _ = c.Compile(tt.source)
 	}
 }
+
+func TestCompilerCompareEquality(t *testing.T) {
+	c := New()
+
+	tests := []struct {
+		source string
+	}{
+		{
+			source: "!(5 - 4 > 3 * 2 == !nil)",
+		},
+	}
+
+	env.DebugPrintCode = true
+	env.DebugTraceExecution = true
+
+	for _, tt := range tests {
+		_, _ = c.Compile(tt.source)
+	}
+}

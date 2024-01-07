@@ -56,3 +56,19 @@ func (v *Value) AsBool() bool {
 func (v *Value) AsNumber() float64 {
 	return v.value.(float64)
 }
+
+func (v *Value) Equal(vv *Value) bool {
+	if v.Type != vv.Type {
+		return false
+	}
+	switch v.Type {
+	case Bool:
+		return v.AsBool() == vv.AsBool()
+	case Nil:
+		return true
+	case Number:
+		return v.AsNumber() == vv.AsNumber()
+	default:
+		return false
+	}
+}

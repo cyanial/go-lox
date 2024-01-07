@@ -58,6 +58,14 @@ func (it *Interpreter) Run() Result {
 			it.push(value.NewBool(true))
 		case op.False:
 			it.push(value.NewBool(false))
+		case op.Equal:
+			b := it.pop()
+			a := it.pop()
+			it.push(value.NewBool(a.Equal(b)))
+		case op.Greater:
+			fallthrough
+		case op.Less:
+			fallthrough
 		case op.Add:
 			fallthrough
 		case op.Subtract:
@@ -112,11 +120,15 @@ func (it *Interpreter) readByte() op.Code {
 }
 
 func (it *Interpreter) binaryOp(o op.Code) {
-	a := it.pop()
 	b := it.pop()
+	a := it.pop()
 
 	// it.push(a o b)
 	switch o {
+	case op.Greater:
+		it.push(value.NewBool(a.AsNumber() > b.AsNumber()))
+	case op.Less:
+		it.push(value.NewBool(a.AsNumber() < b.AsNumber()))
 	case op.Add:
 		it.push(value.NewNumber(a.AsNumber() + b.AsNumber()))
 	case op.Subtract:

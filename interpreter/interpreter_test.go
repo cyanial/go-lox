@@ -122,3 +122,28 @@ func TestInterpreterLogicalNotAndFalseValue(t *testing.T) {
 	it := New(ck)
 	it.Run()
 }
+
+func TestInterpreterComparison(t *testing.T) {
+	ck := chunk.New()
+	line := 1
+
+	env.DebugTraceExecution = true
+	env.DebugPrintCode = true
+
+	ck.AddConstant(value.NewNumber(12), line)
+	ck.AddConstant(value.NewNumber(9.2), line)
+	ck.AddOp(op.Greater, line)
+
+	ck.AddConstant(value.NewNumber(5.3), line)
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddOp(op.Less, line)
+
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddConstant(value.NewNumber(5.5), line)
+	ck.AddOp(op.Equal, line)
+
+	ck.AddOp(op.Return, line)
+
+	it := New(ck)
+	it.Run()
+}

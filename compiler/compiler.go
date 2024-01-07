@@ -136,6 +136,18 @@ func (c *Compiler) binary() {
 	c.parsePrecedence(rule.Precedence + 1)
 
 	switch typ {
+	case token.BangEqual:
+		c.emitBytes(op.Equal, op.Not)
+	case token.EqualEqual:
+		c.emitByte(op.Equal)
+	case token.Greater:
+		c.emitByte(op.Greater)
+	case token.GreaterEqual:
+		c.emitBytes(op.Less, op.Not)
+	case token.Less:
+		c.emitByte(op.Less)
+	case token.LessEqual:
+		c.emitBytes(op.Greater, op.Not)
 	case token.Plus:
 		c.emitByte(op.Add)
 	case token.Minus:
