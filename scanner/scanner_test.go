@@ -54,11 +54,36 @@ class student {
 func TestScannerUnTerminatedString(t *testing.T) {
 
 	source := `
-"asf
-`
+"asf`
 	sc := New(source)
 	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
 		fmt.Printf("%#v\n", *tok)
 	}
 
+}
+
+func TestScannerNumber(t *testing.T) {
+
+	source := `123`
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Printf("%#v\n", *tok)
+	}
+}
+
+func TestScannerDotNumber(t *testing.T) {
+	source := `2.1`
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Printf("%#v\n", *tok)
+	}
+}
+
+func TestScannerIdentity(t *testing.T) {
+
+	source := `hello`
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Printf("%#v\n", *tok)
+	}
 }

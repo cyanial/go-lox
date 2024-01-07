@@ -4,14 +4,9 @@ import (
 	"fmt"
 	"github.com/cyanial/go-lox/chunk"
 	"github.com/cyanial/go-lox/disassembly"
+	"github.com/cyanial/go-lox/env"
 	"github.com/cyanial/go-lox/op"
 	"github.com/cyanial/go-lox/value"
-	"os"
-)
-
-var (
-	debugPrintCode      = false
-	debugTraceExecution = false
 )
 
 const (
@@ -28,15 +23,6 @@ type Interpreter struct {
 	Stack []value.Value
 }
 
-func init() {
-	if dpc := os.Getenv("debugPrintCode"); dpc == "true" {
-		debugPrintCode = true
-	}
-	if dte := os.Getenv("debugTraceExecution"); dte == "true" {
-		debugTraceExecution = true
-	}
-}
-
 func New(c *chunk.Chunk) *Interpreter {
 	return &Interpreter{
 		Chunk: c,
@@ -47,7 +33,7 @@ func New(c *chunk.Chunk) *Interpreter {
 
 func (it *Interpreter) Run() Result {
 	for {
-		if debugTraceExecution {
+		if env.DebugTraceExecution {
 			fmt.Printf("      STACK: ")
 			for _, slot := range it.Stack {
 				fmt.Printf("[%v] ", slot)

@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"github.com/cyanial/go-lox/chunk"
+	"github.com/cyanial/go-lox/env"
 	"github.com/cyanial/go-lox/op"
 	"testing"
 )
@@ -10,8 +11,8 @@ func TestInterpreter(t *testing.T) {
 	ck := chunk.New()
 	line := 1
 
-	debugTraceExecution = true
-	debugPrintCode = true
+	env.DebugTraceExecution = true
+	env.DebugPrintCode = true
 
 	ck.AddConstant(1.2, line)
 	ck.AddConstant(3.3, line)
@@ -34,8 +35,8 @@ func TestInterpreterConstantLong(t *testing.T) {
 	ck := chunk.New()
 	line := 1
 
-	debugTraceExecution = true
-	debugPrintCode = true
+	env.DebugTraceExecution = true
+	env.DebugPrintCode = true
 
 	ck.AddConstant(1, line)
 

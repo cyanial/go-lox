@@ -17,7 +17,11 @@ func New() *VirtualMachine {
 }
 
 func (v *VirtualMachine) Interpret(source string) interpreter.Result {
-	v.It = interpreter.New(v.Cp.Compile(source))
+	ck, ok := v.Cp.Compile(source)
+	if !ok {
+		return interpreter.CompileError
+	}
 
+	v.It = interpreter.New(ck)
 	return v.It.Run()
 }

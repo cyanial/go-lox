@@ -1,251 +1,181 @@
 package compiler
 
 import (
+	"fmt"
 	"github.com/cyanial/go-lox/chunk"
+	"github.com/cyanial/go-lox/disassembly"
+	"github.com/cyanial/go-lox/env"
+	"github.com/cyanial/go-lox/op"
+	"github.com/cyanial/go-lox/parser"
+	"github.com/cyanial/go-lox/precedence"
 	"github.com/cyanial/go-lox/scanner"
+	"github.com/cyanial/go-lox/token"
+	"github.com/cyanial/go-lox/value"
+	"os"
+	"strconv"
 )
 
 type Compiler struct {
 	Sc *scanner.Scanner
+	Pa *parser.Parser
+	Ru *precedence.Rules
+
+	Ck *chunk.Chunk
 }
 
 func New() *Compiler {
 	return &Compiler{}
 }
 
-func (c *Compiler) Compile(source string) *chunk.Chunk {
+func (c *Compiler) Compile(source string) (*chunk.Chunk, bool) {
 	c.Sc = scanner.New(source)
+	c.Pa = parser.New()
+	c.Ru = precedence.NewRules(c.unary, c.binary, c.grouping, c.number)
+	c.Ck = chunk.New()
 
-	//int line = -1;
-	//for (;;) {
-	//	Token token = scanToken();
-	//	if (token.line != line) {
-	//		printf("%4d ", token.line);
-	//		line = token.line;
-	//	} else {
-	//		printf("   | ");
-	//	}
-	//	printf("%2d '%.*s'\n", token.type, token.length, token.start);
-	//
-	//	if (token.type == TOKEN_EOF) break;
-	//}
+	c.advance()
+	c.expression()
+	c.consume(token.EOF, "expect end of expression")
+	c.endCompiler()
 
-	return chunk.New()
+	return c.Ck, true
 }
 
-//type Compiler struct {
-//	Chunk   *common.Chunk
-//	Parser  *Parser
-//	Scanner *Scanner
-//	Rules   map[TokenType]*ParserRule
-//
-//	debugPrintCode bool
-//}
-//
-//func NewCompiler(source string, debugPrintCode bool) *Compiler {
-//	c := &Compiler{
-//		Scanner:        NewScanner(source),
-//		Parser:         &Parser{},
-//		debugPrintCode: debugPrintCode,
-//	}
-//
-//	c.Rules = map[TokenType]*ParserRule{
-//		TokenLeftParen:    {c.grouping, nil, PrecedenceNone},
-//		TokenRightParen:   {nil, nil, PrecedenceNone},
-//		TokenLeftBrace:    {nil, nil, PrecedenceNone},
-//		TokenRightBrace:   {nil, nil, PrecedenceNone},
-//		TokenComma:        {nil, nil, PrecedenceNone},
-//		TokenDot:          {nil, nil, PrecedenceNone},
-//		TokenMinus:        {c.unary, c.binary, PrecedenceTerm},
-//		TokenPlus:         {nil, c.binary, PrecedenceTerm},
-//		TokenSemicolon:    {nil, nil, PrecedenceNone},
-//		TokenSlash:        {nil, c.binary, PrecedenceFactor},
-//		TokenStar:         {nil, c.binary, PrecedenceFactor},
-//		TokenBang:         {nil, nil, PrecedenceNone},
-//		TokenBangEqual:    {nil, nil, PrecedenceNone},
-//		TokenEqual:        {nil, nil, PrecedenceNone},
-//		TokenEqualEqual:   {nil, nil, PrecedenceNone},
-//		TokenGreater:      {nil, nil, PrecedenceNone},
-//		TokenGreaterEqual: {nil, nil, PrecedenceNone},
-//		TokenLess:         {nil, nil, PrecedenceNone},
-//		TokenLessEqual:    {nil, nil, PrecedenceNone},
-//		TokenIdentify:     {nil, nil, PrecedenceNone},
-//		TokenString:       {nil, nil, PrecedenceNone},
-//		TokenNumber:       {c.number, nil, PrecedenceNone},
-//		TokenAnd:          {nil, nil, PrecedenceNone},
-//		TokenClass:        {nil, nil, PrecedenceNone},
-//		TokenElse:         {nil, nil, PrecedenceNone},
-//		TokenFalse:        {nil, nil, PrecedenceNone},
-//		TokenFor:          {nil, nil, PrecedenceNone},
-//		TokenFunc:         {nil, nil, PrecedenceNone},
-//		TokenIf:           {nil, nil, PrecedenceNone},
-//		TokenNil:          {nil, nil, PrecedenceNone},
-//		TokenOr:           {nil, nil, PrecedenceNone},
-//		TokenPrint:        {nil, nil, PrecedenceNone},
-//		TokenReturn:       {nil, nil, PrecedenceNone},
-//		TokenSuper:        {nil, nil, PrecedenceNone},
-//		TokenThis:         {nil, nil, PrecedenceNone},
-//		TokenTrue:         {nil, nil, PrecedenceNone},
-//		TokenVar:          {nil, nil, PrecedenceNone},
-//		TokenWhile:        {nil, nil, PrecedenceNone},
-//		TokenError:        {nil, nil, PrecedenceNone},
-//		TokenEOF:          {nil, nil, PrecedenceNone},
-//	}
-//
-//	return c
-//}
-//
-//func (c *Compiler) Compile() bool {
-//	c.advance()
-//	c.expression()
-//	c.consume(TokenEOF, "expect end of expression")
-//	c.endCompiler()
-//	return !c.Parser.HadError
-//}
-//
-//func (c *Compiler) advance() {
-//	c.Parser.Previous = c.Parser.Current
-//
-//	for {
-//		c.Parser.Current = c.Scanner.ScanToken()
-//		if c.Parser.Current.Type != TokenError {
-//			break
-//		}
-//
-//		c.errorAtCurrent("")
-//	}
-//}
-//
-//func (c *Compiler) expression() {
-//	c.parsePrecedence(PrecedenceAssignment)
-//}
-//
-//func (c *Compiler) consume(typ TokenType, msg string) {
-//	if c.Parser.Current.Type == typ {
-//		c.advance()
-//		return
-//	}
-//
-//	c.errorAtCurrent(msg)
-//}
-//
-//func (c *Compiler) endCompiler() {
-//	c.emitByte(common.OpReturn)
-//
-//	if c.debugPrintCode && !c.Parser.HadError {
-//		disassembly.DisAssembleChunk(c.Chunk, "code")
-//	}
-//}
-//
-//func (c *Compiler) grouping() {
-//	c.expression()
-//	c.consume(TokenRightParen, "Expect ')' after expression")
-//}
-//
-//func (c *Compiler) number() {
-//	value, _ := strconv.ParseFloat(c.Parser.Previous.Value, 64)
-//	c.emitConstant(common.Value(value))
-//}
-//
-//func (c *Compiler) unary() {
-//	opTyp := c.Parser.Previous.Type
-//
-//	c.parsePrecedence(PrecedenceUnary)
-//
-//	switch opTyp {
-//	case TokenMinus:
-//		c.emitByte(common.OpNegate)
-//	default:
-//		return
-//	}
-//}
-//
-//func (c *Compiler) binary() {
-//	opTyp := c.Parser.Previous.Type
-//	rule := c.getRule(opTyp)
-//
-//	c.parsePrecedence(rule.Precedence + 1)
-//
-//	switch opTyp {
-//	case TokenPlus:
-//		c.emitByte(common.OpAdd)
-//	case TokenMinus:
-//		c.emitByte(common.OpSubtract)
-//	case TokenStar:
-//		c.emitByte(common.OpMultiply)
-//	case TokenSlash:
-//		c.emitByte(common.OpDivide)
-//	default:
-//		return
-//	}
-//}
-//
-//func (c *Compiler) parsePrecedence(precedence Precedence) {
-//	c.advance()
-//	prefixRule := c.getRule(c.Parser.Previous.Type).Prefix
-//	if prefixRule == nil {
-//		//error("expect expression")
-//		_, _ = fmt.Fprintf(os.Stderr, "expect expression")
-//		return
-//	}
-//
-//	prefixRule()
-//
-//	for precedence <= c.getRule(c.Parser.Current.Type).Precedence {
-//		c.advance()
-//		infixRule := c.getRule(c.Parser.Previous.Type).infix
-//		infixRule()
-//	}
-//}
-//
-//func (c *Compiler) getRule(typ TokenType) *ParserRule {
-//	return c.Rules[typ]
-//}
-//
-//func (c *Compiler) emitConstant(value common.Value) {
-//	c.emitBytes(common.OpConstant, c.makeConstant(value))
-//}
-//
-//func (c *Compiler) makeConstant(value common.Value) common.OpCode {
-//	constant := c.Chunk.AddConstant(value)
-//	if constant > math.MaxUint8 {
-//		_, _ = fmt.Fprint(os.Stderr, "too many constants in one chunk")
-//		return 0
-//	}
-//
-//	return common.OpCode(constant)
-//}
-//
-//func (c *Compiler) emitByte(b common.OpCode) {
-//	c.Chunk.AddOp(b, c.Parser.Previous.Line)
-//}
-//
-//func (c *Compiler) emitBytes(bs ...common.OpCode) {
-//	for _, b := range bs {
-//		c.emitByte(b)
-//	}
-//}
-//
-//func (c *Compiler) errorAtCurrent(msg string) {
-//	c.errorAt(c.Parser.Current, msg)
-//}
-//
-//func (c *Compiler) errorAt(token *Token, msg string) {
-//	if c.Parser.PanicMode {
-//		return
-//	}
-//	c.Parser.PanicMode = true
-//
-//	_, _ = fmt.Fprintf(os.Stderr, "[line %d] Error", token.Line)
-//
-//	if token.Type == TokenEOF {
-//		_, _ = fmt.Fprint(os.Stderr, " at end")
-//	} else if token.Type == TokenError {
-//		// nothing
-//	} else {
-//		_, _ = fmt.Fprintf(os.Stderr, " at '%s'", token.Value)
-//	}
-//
-//	_, _ = fmt.Fprintf(os.Stderr, ": %s\n", msg)
-//	c.Parser.HadError = true
-//}
+func (c *Compiler) advance() {
+	c.Pa.Previous = c.Pa.Current
+
+	for {
+		c.Pa.Current = c.Sc.ScanToken()
+		if c.Pa.Current.Type != token.Error {
+			break
+		}
+
+		c.errorAtCurrent(c.Pa.Current.Value)
+	}
+}
+
+func (c *Compiler) expression() {
+	c.parsePrecedence(precedence.Assignment)
+}
+
+func (c *Compiler) consume(typ token.Type, msg string) {
+	if c.Pa.Current.Type == typ {
+		c.advance()
+		return
+	}
+
+	c.errorAtCurrent(msg)
+}
+
+func (c *Compiler) endCompiler() {
+	if env.DebugPrintCode && !c.Pa.HadError {
+		disassembly.DisassembleChunk(c.Ck, "code")
+	}
+}
+
+func (c *Compiler) parsePrecedence(p precedence.Precedence) {
+	c.advance()
+	prefixRule := c.Ru.Get(c.Pa.Previous.Type).Prefix
+	if prefixRule == nil {
+		c.error("expect expression")
+		return
+	}
+
+	prefixRule()
+
+	for p <= c.Ru.Get(c.Pa.Current.Type).Precedence {
+		c.advance()
+		infixRule := c.Ru.Get(c.Pa.Previous.Type).Infix
+		infixRule()
+	}
+}
+
+func (c *Compiler) grouping() {
+	c.expression()
+	c.consume(token.RightParen, "expect ')' after expression")
+}
+
+func (c *Compiler) number() {
+	valueFloat64, _ := strconv.ParseFloat(c.Pa.Previous.Value, 64)
+	c.emitConstant(value.Value(valueFloat64))
+}
+
+func (c *Compiler) unary() {
+	typ := c.Pa.Previous.Type
+
+	//c.expression()
+	c.parsePrecedence(precedence.Unary)
+
+	switch typ {
+	case token.Minus:
+		c.emitByte(op.Negate)
+	default:
+		return
+	}
+}
+
+func (c *Compiler) binary() {
+	typ := c.Pa.Previous.Type
+	rule := c.Ru.Get(typ)
+
+	c.parsePrecedence(rule.Precedence + 1)
+
+	switch typ {
+	case token.Plus:
+		c.emitByte(op.Add)
+	case token.Minus:
+		c.emitByte(op.Subtract)
+	case token.Star:
+		c.emitByte(op.Multiply)
+	case token.Slash:
+		c.emitByte(op.Divide)
+	default:
+		return
+	}
+
+}
+
+func (c *Compiler) emitConstant(v value.Value) {
+	c.Ck.AddConstant(v, c.Pa.Previous.Line)
+}
+
+func (c *Compiler) emitBytes(ops ...op.Code) {
+	for _, o := range ops {
+		c.emitByte(o)
+	}
+}
+
+func (c *Compiler) emitByte(o op.Code) {
+	c.Ck.AddOp(o, c.Pa.Previous.Line)
+}
+
+func (c *Compiler) emitReturn() {
+	c.emitByte(op.Return)
+}
+
+func (c *Compiler) errorAtCurrent(msg string) {
+	c.errorAt(c.Pa.Current, msg)
+}
+
+func (c *Compiler) error(msg string) {
+	c.errorAt(c.Pa.Previous, msg)
+}
+
+func (c *Compiler) errorAt(tk *token.Token, msg string) {
+	if c.Pa.PanicMode {
+		return
+	}
+	c.Pa.PanicMode = true
+	_, _ = fmt.Fprintf(os.Stderr, "[line %d] error", tk.Line)
+
+	if tk.Type == token.EOF {
+		_, _ = fmt.Fprint(os.Stderr, " at end")
+	} else if tk.Type == token.Error {
+		// nothing
+	} else {
+		_, _ = fmt.Fprintf(os.Stderr, " at '%s'", tk.Value)
+	}
+
+	_, _ = fmt.Fprintf(os.Stderr, ": %s\n", msg)
+	c.Pa.HadError = true
+}

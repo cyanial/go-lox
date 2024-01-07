@@ -171,18 +171,16 @@ func (s *Scanner) literal() *token.Token {
 }
 
 func (s *Scanner) number() *token.Token {
-	for unicode.IsDigit(rune(s.Source[s.Current])) {
+	for s.Current < len(s.Source) && unicode.IsDigit(rune(s.Source[s.Current])) {
 		s.Current++
-		if s.Source[s.Current] == '.' &&
-			(s.Current+1 < len(s.Source) && unicode.IsDigit(rune(s.Source[s.Current+1]))) {
-			// Consume the "."
-			s.Current++
+	}
+	if s.Current < len(s.Source) && s.Source[s.Current] == '.' &&
+		(s.Current+1 < len(s.Source) && unicode.IsDigit(rune(s.Source[s.Current+1]))) {
+		// Consume the "."
+		s.Current++
 
-			for {
-				for unicode.IsDigit(rune(s.Source[s.Current])) {
-					s.Current++
-				}
-			}
+		for s.Current < len(s.Source) && unicode.IsDigit(rune(s.Source[s.Current])) {
+			s.Current++
 		}
 	}
 
@@ -190,9 +188,9 @@ func (s *Scanner) number() *token.Token {
 }
 
 func (s *Scanner) identifier() *token.Token {
-	for s.Source[s.Current] == '_' ||
+	for s.Current < len(s.Source) && (s.Source[s.Current] == '_' ||
 		unicode.IsLetter(rune(s.Source[s.Current])) ||
-		unicode.IsDigit(rune(s.Source[s.Current])) {
+		unicode.IsDigit(rune(s.Source[s.Current]))) {
 		s.Current++
 	}
 
