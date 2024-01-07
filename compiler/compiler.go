@@ -68,6 +68,7 @@ func (c *Compiler) consume(typ token.Type, msg string) {
 }
 
 func (c *Compiler) endCompiler() {
+	c.emitReturn()
 	if env.DebugPrintCode && !c.Pa.HadError {
 		disassembly.DisassembleChunk(c.Ck, "code")
 	}
