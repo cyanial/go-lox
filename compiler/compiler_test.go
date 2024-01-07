@@ -29,6 +29,9 @@ func TestCompilerExpression(t *testing.T) {
 		{
 			source: "2.2+3.1*51.2/(2.2-1.0)",
 		},
+		{
+			source: "(-1 + 2) * 3 - -4",
+		},
 	}
 
 	env.DebugPrintCode = true
