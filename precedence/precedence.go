@@ -44,7 +44,7 @@ func NewRules(unary, binary, grouping, number, literal ParseFn) *Rules {
 			token.Semicolon:    {nil, nil, None},
 			token.Slash:        {nil, binary, Factor},
 			token.Star:         {nil, binary, Factor},
-			token.Bang:         {nil, nil, None},
+			token.Bang:         {unary, nil, None},
 			token.BangEqual:    {nil, nil, None},
 			token.Equal:        {nil, nil, None},
 			token.EqualEqual:   {nil, nil, None},

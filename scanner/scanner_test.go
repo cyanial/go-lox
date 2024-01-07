@@ -97,3 +97,17 @@ nil;`
 		fmt.Println(tok.String())
 	}
 }
+
+func TestScannerLogicalNotAndFalseValue(t *testing.T) {
+	source := `
+!nil;
+!true;
+!false;
+!0;
+!123;`
+
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Println(tok.String())
+	}
+}

@@ -98,3 +98,27 @@ func TestInterpreterNegateError(t *testing.T) {
 	it := New(ck)
 	it.Run()
 }
+
+func TestInterpreterLogicalNotAndFalseValue(t *testing.T) {
+	ck := chunk.New()
+	line := 1
+
+	env.DebugTraceExecution = true
+	env.DebugPrintCode = true
+
+	ck.AddOp(op.Nil, line)
+	ck.AddOp(op.Not, line)
+	ck.AddOp(op.True, line)
+	ck.AddOp(op.Not, line)
+	ck.AddOp(op.False, line)
+	ck.AddOp(op.Not, line)
+	ck.AddConstant(value.NewNumber(12.1), line)
+	ck.AddOp(op.Not, line)
+	ck.AddConstant(value.NewNumber(0), line)
+	ck.AddOp(op.Not, line)
+
+	ck.AddOp(op.Return, line)
+
+	it := New(ck)
+	it.Run()
+}

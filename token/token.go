@@ -66,7 +66,7 @@ func New(typ Type, value string, line int) *Token {
 }
 
 func (t *Token) String() string {
-	res := "["
+	res := ""
 	switch t.Type {
 	case LeftParen:
 		res += "LeftParen"
@@ -149,8 +149,6 @@ func (t *Token) String() string {
 	case EOF:
 		res += "EOF"
 	}
-	res += ", "
-	res += t.Value
-	res += fmt.Sprintf(", %d]", t.Line)
-	return res
+
+	return fmt.Sprintf("[%-10s line %d: %s]", res, t.Line, t.Value)
 }

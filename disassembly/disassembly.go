@@ -42,6 +42,8 @@ func DisassembleInstruction(c *chunk.Chunk, offset int) int {
 		return simpleInstruction("MULTIPLY", offset)
 	case op.Divide:
 		return simpleInstruction("DIVIDE", offset)
+	case op.Not:
+		return simpleInstruction("NOT", offset)
 	case op.Negate:
 		return simpleInstruction("NEGATE", offset)
 	case op.Return:

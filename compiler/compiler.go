@@ -120,6 +120,8 @@ func (c *Compiler) unary() {
 	c.parsePrecedence(precedence.Unary)
 
 	switch typ {
+	case token.Bang:
+		c.emitByte(op.Not)
 	case token.Minus:
 		c.emitByte(op.Negate)
 	default:

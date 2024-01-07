@@ -71,6 +71,15 @@ func (it *Interpreter) Run() Result {
 				return RuntimeError
 			}
 			it.binaryOp(instruction)
+		case op.Not:
+			v := it.pop()
+			if v.Type == value.Nil {
+				it.push(value.NewBool(true))
+			} else if v.Type == value.Bool {
+				it.push(value.NewBool(!v.AsBool()))
+			} else {
+				it.push(value.NewBool(v.AsNumber() == 0))
+			}
 		case op.Negate:
 			if it.Stack[len(it.Stack)-1].Type != value.Number {
 				it.runtimeError("operand must be a number")

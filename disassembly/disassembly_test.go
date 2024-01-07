@@ -42,3 +42,23 @@ func TestDisassembleBoolNilNumber(t *testing.T) {
 
 	DisassembleChunk(ck, "TestDisassembleBoolNilNumber")
 }
+
+func TestDisassembleLogicalNotAndFalseValue(t *testing.T) {
+	ck := chunk.New()
+	line := 1
+
+	ck.AddOp(op.Nil, line)
+	ck.AddOp(op.Not, line)
+	ck.AddOp(op.True, line)
+	ck.AddOp(op.Not, line)
+	ck.AddOp(op.False, line)
+	ck.AddOp(op.Not, line)
+	ck.AddConstant(value.NewNumber(12.1), line)
+	ck.AddOp(op.Not, line)
+	ck.AddConstant(value.NewNumber(0), line)
+	ck.AddOp(op.Not, line)
+
+	ck.AddOp(op.Return, line)
+
+	DisassembleChunk(ck, "TestDisassembleLogicalNotAndFalseValue")
+}

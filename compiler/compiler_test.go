@@ -66,3 +66,34 @@ func TestCompilerBoolNil(t *testing.T) {
 		_, _ = c.Compile(tt.source)
 	}
 }
+
+func TestCompilerLogicalNotAndFalseValue(t *testing.T) {
+	c := New()
+
+	tests := []struct {
+		source string
+	}{
+		{
+			source: "!nil",
+		},
+		{
+			source: "!true",
+		},
+		{
+			source: "!false",
+		},
+		{
+			source: "!0",
+		},
+		{
+			source: "!123.2",
+		},
+	}
+
+	env.DebugPrintCode = true
+	env.DebugTraceExecution = true
+
+	for _, tt := range tests {
+		_, _ = c.Compile(tt.source)
+	}
+}
