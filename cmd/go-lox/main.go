@@ -31,6 +31,10 @@ func repl() {
 			break
 		}
 
+		if sc.Text() == "" {
+			continue
+		}
+
 		//fmt.Println("get text: ", sc.Text())
 		v.Interpret(sc.Text())
 	}

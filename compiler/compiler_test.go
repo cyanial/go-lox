@@ -116,3 +116,23 @@ func TestCompilerCompareEquality(t *testing.T) {
 		_, _ = c.Compile(tt.source)
 	}
 }
+
+func TestCompilerStringConcatenation(t *testing.T) {
+
+	c := New()
+
+	tests := []struct {
+		source string
+	}{
+		{
+			source: `"hello" + "world"`,
+		},
+	}
+
+	env.DebugPrintCode = true
+	env.DebugTraceExecution = true
+
+	for _, tt := range tests {
+		_, _ = c.Compile(tt.source)
+	}
+}

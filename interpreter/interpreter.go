@@ -5,6 +5,7 @@ import (
 	"github.com/cyanial/go-lox/chunk"
 	"github.com/cyanial/go-lox/disassembly"
 	"github.com/cyanial/go-lox/env"
+	"github.com/cyanial/go-lox/object"
 	"github.com/cyanial/go-lox/op"
 	"github.com/cyanial/go-lox/value"
 	"os"
@@ -63,15 +64,45 @@ func (it *Interpreter) Run() Result {
 			a := it.pop()
 			it.push(value.NewBool(a.Equal(b)))
 		case op.Greater:
-			fallthrough
+			if it.Stack[len(it.Stack)-1].Type != value.Number ||
+				it.Stack[len(it.Stack)-2].Type != value.Number {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
+			it.binaryOp(instruction)
 		case op.Less:
-			fallthrough
+			if it.Stack[len(it.Stack)-1].Type != value.Number ||
+				it.Stack[len(it.Stack)-2].Type != value.Number {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
+			it.binaryOp(instruction)
 		case op.Add:
-			fallthrough
+			bVal, aVal := it.Stack[len(it.Stack)-1], it.Stack[len(it.Stack)-2]
+			if bVal.Type == value.Object && bVal.AsObject().Type == object.String &&
+				aVal.Type == value.Object && aVal.AsObject().Type == object.String {
+				it.concatenate()
+			} else if it.Stack[len(it.Stack)-1].Type == value.Number &&
+				it.Stack[len(it.Stack)-2].Type == value.Number {
+				it.binaryOp(instruction)
+			} else {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
 		case op.Subtract:
-			fallthrough
+			if it.Stack[len(it.Stack)-1].Type != value.Number ||
+				it.Stack[len(it.Stack)-2].Type != value.Number {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
+			it.binaryOp(instruction)
 		case op.Multiply:
-			fallthrough
+			if it.Stack[len(it.Stack)-1].Type != value.Number &&
+				it.Stack[len(it.Stack)-2].Type != value.Number {
+				it.runtimeError("operands must be numbers")
+				return RuntimeError
+			}
+			it.binaryOp(instruction)
 		case op.Divide:
 			if it.Stack[len(it.Stack)-1].Type != value.Number &&
 				it.Stack[len(it.Stack)-2].Type != value.Number {
@@ -117,6 +148,13 @@ func (it *Interpreter) readByte() op.Code {
 	o := it.Chunk.Codes[it.IP]
 	it.IP++
 	return o
+}
+
+func (it *Interpreter) concatenate() {
+	b := it.pop()
+	a := it.pop()
+
+	it.push(value.NewObject(object.NewString(a.AsObject().AsString() + b.AsObject().AsString())))
 }
 
 func (it *Interpreter) binaryOp(o op.Code) {

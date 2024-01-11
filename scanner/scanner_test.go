@@ -127,3 +127,17 @@ he != she;
 		fmt.Println(tok.String())
 	}
 }
+
+func TestScannerStringConcatenation(t *testing.T) {
+
+	source := `
+"hello";
+"world";
+"bye" + "bye" + "world"
+`
+
+	sc := New(source)
+	for tok := sc.ScanToken(); tok.Type != token.EOF; tok = sc.ScanToken() {
+		fmt.Println(tok.String())
+	}
+}

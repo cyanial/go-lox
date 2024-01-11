@@ -5,6 +5,7 @@ import (
 	"github.com/cyanial/go-lox/chunk"
 	"github.com/cyanial/go-lox/disassembly"
 	"github.com/cyanial/go-lox/env"
+	"github.com/cyanial/go-lox/object"
 	"github.com/cyanial/go-lox/op"
 	"github.com/cyanial/go-lox/parser"
 	"github.com/cyanial/go-lox/precedence"
@@ -30,7 +31,7 @@ func New() *Compiler {
 func (c *Compiler) Compile(source string) (*chunk.Chunk, bool) {
 	c.Sc = scanner.New(source)
 	c.Pa = parser.New()
-	c.Ru = precedence.NewRules(c.unary, c.binary, c.grouping, c.number, c.literal)
+	c.Ru = precedence.NewRules(c.unary, c.binary, c.grouping, c.number, c.literal, c.string)
 	c.Ck = chunk.New()
 
 	c.advance()
@@ -107,6 +108,11 @@ func (c *Compiler) literal() {
 	default:
 		return
 	}
+}
+
+func (c *Compiler) string() {
+	//c.emitConstant(OBJ_VAL(copyString(c.Pa.Previous.start+1, c.Pa.Previous.length-2)))
+	c.emitConstant(value.NewObject(object.NewString(c.Pa.Previous.Value)))
 }
 
 func (c *Compiler) number() {
